@@ -9,7 +9,16 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    // Notifiable 是消息通知相关的引用
+    // HasFactory 是模型工厂相关功能的引用
+    // Authenticatable 是授权相关功能的引用
     use HasFactory, Notifiable;
+
+    /**
+     * 指定需要交互的数据表名称
+     * @var string
+     */
+    protected $table = "users";
 
     /**
      * The attributes that are mass assignable.
