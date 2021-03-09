@@ -20,3 +20,14 @@ Route::get("/about", "StaticPagesController@about")->name("about");
 
 // 用户注册
 Route::get("signup", "UsersController@create")->name("signup");
+
+//Route::resource("users", "UsersController");
+
+// 等同于以下代码
+Route::get('/users', 'UsersController@index')->name('users.index');
+Route::get('/users/create', 'UsersController@create')->name('users.create');
+Route::get('/users/{user}', 'UsersController@show')->name('users.show');
+Route::post('/users', 'UsersController@store')->name('users.store');
+Route::get('/users/{user}/edit', 'UsersController@edit')->name('users.edit');
+Route::patch('/users/{user}', 'UsersController@update')->name('users.update');
+Route::delete('/users/{user}', 'UsersController@destroy')->name('users.destroy');
