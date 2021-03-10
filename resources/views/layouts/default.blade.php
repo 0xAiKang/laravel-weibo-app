@@ -10,6 +10,7 @@
   {{--include 是Blade 提供的视图引用方法 --}}
   @include('layouts._header')
 <div class="container">
+  @include('shared._message')
   {{--yield 是Blade 提供的占位符方法--}}
   @yield('content')
   @include('layouts._footer')
