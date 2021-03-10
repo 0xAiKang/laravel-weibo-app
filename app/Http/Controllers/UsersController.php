@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller
 {
@@ -17,6 +18,7 @@ class UsersController extends Controller
     }
 
     /**
+     * 显示个人中心
      * @param User $user
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
@@ -26,6 +28,7 @@ class UsersController extends Controller
     }
 
     /**
+     * 用户注册
      * @param Request $request
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -44,6 +47,7 @@ class UsersController extends Controller
             "password" => bcrypt($request->password)
         ]);
 
+        Auth::login($user);
         session()->flash('success', "欢迎，您将在这里开启一段新的旅程~");
         return redirect()->route("users.show", [$user->id]);
     }

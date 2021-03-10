@@ -31,3 +31,8 @@ Route::post('/users', 'UsersController@store')->name('users.store');
 Route::get('/users/{user}/edit', 'UsersController@edit')->name('users.edit');
 Route::patch('/users/{user}', 'UsersController@update')->name('users.update');
 Route::delete('/users/{user}', 'UsersController@destroy')->name('users.destroy');
+
+// 会话管理
+Route::get('login', 'SessionsController@create')->name('login');    // 显示登录页面
+Route::post('login', 'SessionsController@store')->name('login');    // 创建新会话（登录）
+Route::delete('logout', 'SessionsController@destory')->name('logout'); // 销毁会话（退出登录）
