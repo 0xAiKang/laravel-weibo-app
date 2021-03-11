@@ -13,7 +13,7 @@ class UsersController extends Controller
         // 使用中间件
         $this->middleware("auth", [
             // 指定这几个方法不使用Auth 去验证
-            "except" => ["show", "create", "store"]
+            "except" => ["show", "create", "store", "index"]
         ]);
 
         $this->middleware("guest", [
@@ -21,7 +21,14 @@ class UsersController extends Controller
         ]);
     }
 
+    public function index()
+    {
+        $users = User::paginate(6);
+        return view("users.index", compact('users'));
+    }
+
     /**
+     * 注册页面
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function create()
@@ -92,5 +99,15 @@ class UsersController extends Controller
         $user->update($data);
         session()->flash("success", "更新资料成功！");
         return redirect()->route("users.show", $user->id);
+    }
+
+    public function destroy(User $user)
+    {
+        // 添加验证权限
+        $this->authorize("destroy", $user);
+        $user->delete();
+        session()->flash("success", "删除成功");
+        return back();
+        return redirect()->route("users.index");
     }
 }
