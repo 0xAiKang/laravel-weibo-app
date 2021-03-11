@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\Auth;
 
 class SessionsController extends Controller
 {
+    public function __construct()
+    {
+        // guest 用于指定未登录用户访问的动作
+        $this->middleware("guest", [
+            "only" => "create",
+        ]);
+    }
+
     /**
      * 显示损户登录页面
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
@@ -31,7 +39,8 @@ class SessionsController extends Controller
         if (Auth::attempt($login_info, $request->has('remember'))) {
             session()->flash("success", "欢迎回来！");
 //            var_dump(Auth::user());
-             return redirect()->route('users.show', [Auth::user()->id]);
+            $fallback = route("users.show", Auth::user()->id);
+             return redirect()->intended($fallback);
         } else {
             session()->flash("danger", "很抱歉，您的邮箱和密码不匹配");
             return redirect()->back()->withInput();
