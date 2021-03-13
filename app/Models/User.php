@@ -76,4 +76,22 @@ class User extends Authenticatable
             $user->activation_token = \Illuminate\Support\Str::random();
         });
     }
+
+    /**
+     * 指明一个用户拥有多条微博
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function statuses()
+    {
+        return $this->hasMany(Status::class);
+    }
+
+    /**
+     * 用于获取当前用户发布的微博
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function feed()
+    {
+        return $this->statuses()->orderBy("created_at", "desc");
+    }
 }
