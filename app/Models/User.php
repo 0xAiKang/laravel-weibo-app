@@ -81,9 +81,10 @@ class User extends Authenticatable
      * 指明一个用户拥有多条微博
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function statuses()
+    public function hasStatuses()
     {
-        return $this->hasMany(Status::class);
+        // user 表正向关联 status 表
+        return $this->hasMany(Status::class, "user_id", "id");
     }
 
     /**
@@ -92,6 +93,6 @@ class User extends Authenticatable
      */
     public function feed()
     {
-        return $this->statuses()->orderBy("created_at", "desc");
+        return $this->hasStatuses()->orderBy("created_at", "desc");
     }
 }

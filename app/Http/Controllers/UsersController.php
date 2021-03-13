@@ -46,7 +46,7 @@ class UsersController extends Controller
      */
     public function show(User $user)
     {
-        $statuses = $user->statuses()
+        $statuses = $user->hasStatuses()
             ->orderBy("created_at", "desc")
             ->paginate(30);
 
