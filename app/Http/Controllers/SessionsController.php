@@ -13,6 +13,11 @@ class SessionsController extends Controller
         $this->middleware("guest", [
             "only" => "create",
         ]);
+
+        // 限流 10 分钟十次
+        $this->middleware('throttle:10,10', [
+            'only' => ['store']
+        ]);
     }
 
     /**
@@ -37,10 +42,16 @@ class SessionsController extends Controller
             'password' => 'required'
         ]);
         if (Auth::attempt($login_info, $request->has('remember'))) {
-            session()->flash("success", "欢迎回来！");
+            if (Auth::user()->activated) {
+                session()->flash("success", "欢迎回来！");
 //            var_dump(Auth::user());
-            $fallback = route("users.show", Auth::user()->id);
-             return redirect()->intended($fallback);
+                $fallback = route("users.show", Auth::user()->id);
+                return redirect()->intended($fallback);
+            } else {
+                Auth::logout();
+                session()->flash("warning", "你的账号尚未激活，请检查邮箱中的注册链接并激活");
+                return redirect("/");
+            }
         } else {
             session()->flash("danger", "很抱歉，您的邮箱和密码不匹配");
             return redirect()->back()->withInput();

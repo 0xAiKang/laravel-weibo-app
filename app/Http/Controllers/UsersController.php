@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class UsersController extends Controller
 {
@@ -13,7 +14,8 @@ class UsersController extends Controller
         // 使用中间件
         $this->middleware("auth", [
             // 指定这几个方法不使用Auth 去验证
-            "except" => ["show", "create", "store", "index"]
+            // 默认都需要访问权限，在这个指定之后，就不需要了
+            "except" => ["show", "create", "store", "index", "confirmEmail"]
         ]);
 
         $this->middleware("guest", [
@@ -67,9 +69,10 @@ class UsersController extends Controller
             "password" => bcrypt($request->password)
         ]);
 
-        Auth::login($user);
-        session()->flash('success', "欢迎，您将在这里开启一段新的旅程~");
-        return redirect()->route("users.show", [$user->id]);
+        $this->sendEmailConfirmationTo($user);
+        // Auth::login($user);
+        session()->flash('success', "邮件已发送，请注意查收");
+        return redirect("/");
     }
 
     public function edit(User $user)
@@ -80,6 +83,11 @@ class UsersController extends Controller
         return view("users.edit", compact("user"));
     }
 
+    /**
+     * 更新用户资料
+     * @param Request $request
+     * @param User $user
+     */
     public function update(Request $request, User $user)
     {
         // 进行授权验证
@@ -108,6 +116,45 @@ class UsersController extends Controller
         $user->delete();
         session()->flash("success", "删除成功");
         return back();
-        return redirect()->route("users.index");
+    }
+
+    /**
+     * 确认用户邮件
+     * @param $token
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function confirmEmail($token)
+    {
+        // 查找用户
+        // firstOrFail 取出第一个用户，如果查询不到指定用户返回404
+        $user = User::where("activation_token", $token)->firstOrFail();
+
+        $user->activated = true;
+        $user->activation_token = null;
+        $user->save();
+
+        // 用户登录
+        Auth::login($user);
+        session()->flash("success", "恭喜，激活成功");
+        return redirect()->route("users.show", $user->id);
+    }
+
+    /**
+     * 发送邮件
+     * @param $user
+     */
+    protected function sendEmailConfirmationTo($user)
+    {
+        // 邮箱视图模版
+        $views = "emails.confirm";
+        $data = compact("user");
+        $from = "geeek001@qq.com";
+        $name = "boo";
+        $to = $user->email;
+        $subject = "感谢注册";
+
+        Mail::send($views, $data, function ($message) use ($from, $name, $to, $subject){
+            $message->to($to)->subject($subject);
+        });
     }
 }
